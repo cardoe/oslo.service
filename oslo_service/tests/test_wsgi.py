@@ -21,7 +21,11 @@ import platform
 import socket
 import tempfile
 import testtools
+import unittest
 from unittest import mock
+
+if os.environ.get('OSLO_SERVICE_SKIP_EVENTLET'):
+    raise unittest.SkipTest("eventlet is not available")
 
 import eventlet
 import eventlet.wsgi

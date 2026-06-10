@@ -18,9 +18,16 @@
 import errno
 import os
 import socket
+import unittest
 from unittest import mock
 
-import eventlet
+try:
+    import eventlet
+except ImportError:
+    if os.environ.get('OSLO_SERVICE_SKIP_EVENTLET'):
+        raise unittest.SkipTest("eventlet is not available")
+    else:
+        raise
 
 from oslo_service import eventlet_backdoor
 from oslo_service.tests import base

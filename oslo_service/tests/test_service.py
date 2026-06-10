@@ -22,13 +22,27 @@ import os
 import signal
 import subprocess
 import sys
+import threading
 import time
 import traceback
+import unittest
 from unittest import mock
 
-import eventlet
-from eventlet import event
-from eventlet import patcher
+try:
+    import eventlet
+    from eventlet import event
+    from eventlet import patcher
+    EVENTLET_AVAILABLE = True
+except ImportError:
+    EVENTLET_AVAILABLE = False
+
+# The tests in this module exercise the eventlet-based service and rely on the
+# eventlet_service helper, which imports eventlet unconditionally. Skip the
+# whole module when eventlet is not installed (e.g. the threading-only test
+# environment) so discovery does not fail importing eventlet.
+if not EVENTLET_AVAILABLE:
+    raise unittest.SkipTest("eventlet is not available")
+
 from oslotest import base as test_base
 
 from oslo_service import service
@@ -345,11 +359,17 @@ class ServiceRestartTest(ServiceTestBase):
 class _Service(service.Service):
     def __init__(self):
         super().__init__()
-        self.init = event.Event()
+        if EVENTLET_AVAILABLE:
+            self.init = event.Event()
+        else:
+            self.init = threading.Event()
         self.cleaned_up = False
 
     def start(self):
-        self.init.send()
+        if EVENTLET_AVAILABLE:
+            self.init.send()
+        else:
+            self.init.set()
 
     def stop(self):
         self.cleaned_up = True

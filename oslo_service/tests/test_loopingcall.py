@@ -11,11 +11,20 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
+import os
 import time
+import unittest
 from unittest import mock
 
-import eventlet
-from eventlet.green import threading as greenthreading
+try:
+    import eventlet
+    from eventlet.green import threading as greenthreading
+except ImportError:
+    if os.environ.get('OSLO_SERVICE_SKIP_EVENTLET'):
+        raise unittest.SkipTest("eventlet is not available")
+    else:
+        raise
+
 from oslotest import base as test_base
 
 from oslo_service import fixture

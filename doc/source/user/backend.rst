@@ -71,7 +71,7 @@ At runtime, you can select the backend you want to use in two ways:
 
       register_backend_default_hook(my_backend_decider)
 
-If no backend is explicitly initialized, the system will use the **Eventlet**
+If no backend is explicitly initialized, the system will use the **Threading**
 backend by default, unless a hook has been registered to override this choice.
 
 Once the backend is initialized, it **cannot be changed**.
@@ -109,8 +109,8 @@ lifecycle.
 
   1. If a hook is registered, calls the hook to determine the backend type
   2. If the hook raises an exception, falls back to the default backend
-     (Eventlet)
-  3. If no hook is registered, uses the default backend (Eventlet)
+     (Threading)
+  3. If no hook is registered, uses the default backend (Threading)
   4. Initializes the selected backend and returns it
 
 - **``register_backend_default_hook(hook: Callable[[], BackendType])``**:
@@ -177,7 +177,7 @@ configuration, or context — without enforcing it explicitly.
 .. warning::
    If ``get_backend()`` or ``init_backend()`` has already been called before
    your hook is registered, the hook will be ignored and the default backend
-   (usually Eventlet) will be used. Make sure to register the hook as early
+   (Threading) will be used. Make sure to register the hook as early
    as possible, ideally before any other imports that might trigger
    backend usage.
 
@@ -364,7 +364,7 @@ exceptions and errors:
 
 **Hook Exceptions**
    If your hook function raises an exception, the system will log the error
-   and fall back to the default backend (Eventlet).
+   and fall back to the default backend (Threading).
 
    **Solution**: Ensure your hook function handles all potential errors
    and always returns a valid ``BackendType``.

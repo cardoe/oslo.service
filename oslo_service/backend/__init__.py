@@ -35,7 +35,7 @@ class BackendType(enum.Enum):
     THREADING = "threading"
 
 
-DEFAULT_BACKEND_TYPE = BackendType.EVENTLET
+DEFAULT_BACKEND_TYPE = BackendType.THREADING
 
 _cached_backend_type: BackendType | None = None
 _cached_backend: BaseBackend | None = None

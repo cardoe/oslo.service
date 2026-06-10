@@ -30,9 +30,9 @@ class TestBackend(unittest.TestCase):
         backend_module._reset_backend()
 
     def test_default_backend(self):
-        """Test default backend is eventlet."""
+        """Test default backend is threading."""
         backend = get_backend()
-        self.assertEqual(backend.__class__.__name__, "EventletBackend")
+        self.assertEqual(backend.__class__.__name__, "ThreadingBackend")
 
     def test_init_backend_explicit(self):
         """Test that init_backend() can be called before get_backend()."""
@@ -45,9 +45,9 @@ class TestBackend(unittest.TestCase):
         get_backend()
         with self.assertRaisesRegex(
             exceptions.BackendAlreadySelected,
-            "Backend already set to 'eventlet'",
+            "Backend already set to 'threading'",
         ):
-            init_backend(BackendType.THREADING)
+            init_backend(BackendType.EVENTLET)
 
     def test_dont_reinit_backend_explicit_init(self):
         """Fail if init_backend() called twice with different backend."""

@@ -1,0 +1,15 @@
+---
+upgrade:
+  - |
+    The default backend is now ``threading`` instead of ``eventlet``.
+    Applications that call ``get_backend()`` (directly, or indirectly by
+    importing modules such as ``oslo_service.service``) without first calling
+    ``init_backend()`` or registering a hook via
+    ``register_backend_default_hook()`` will now get the threading backend.
+    Applications that still rely on eventlet must explicitly select it with
+    ``init_backend(BackendType.EVENTLET)`` before any oslo.service component
+    is resolved.
+  - |
+    ``eventlet`` is no longer installed by default. Applications using the
+    eventlet backend must install the ``eventlet`` extra, e.g.
+    ``oslo.service[eventlet]``.

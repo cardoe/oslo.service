@@ -17,9 +17,15 @@
 Unit Tests for thread groups
 """
 
+import threading
 import time
+import unittest
 
-from eventlet import event
+try:
+    from eventlet import event
+    EVENTLET_AVAILABLE = True
+except ImportError:
+    EVENTLET_AVAILABLE = False
 
 from oslotest import base as test_base
 
@@ -93,7 +99,8 @@ class ThreadGroupTestCase(test_base.BaseTestCase):
         self.assertEqual(('arg',), timer.args)
         self.assertEqual({'kwarg': 'kwarg'}, timer.kw)
 
-    def test_stop_current_thread(self):
+    @unittest.skipUnless(EVENTLET_AVAILABLE, "eventlet is not installed")
+    def test_stop_current_thread_eventlet(self):
 
         stop_event = event.Event()
         quit_event = event.Event()
@@ -111,6 +118,25 @@ class ThreadGroupTestCase(test_base.BaseTestCase):
         stop_event.wait()
         self.assertEqual(1, len(self.tg.threads))
         quit_event.send('quit_event')
+
+    def test_stop_current_thread_threading(self):
+        stop_event = threading.Event()
+        quit_event = threading.Event()
+
+        def stop_self(*args, **kwargs):
+            if args[0] == 1:
+                time.sleep(1)
+                self.tg.stop()
+                stop_event.set()
+            quit_event.wait()
+
+        for i in range(0, 4):
+            self.tg.add_thread(stop_self, i, kwargs='kwargs')
+
+        self.assertTrue(stop_event.wait(timeout=5),
+                        "stop_self thread never called stop()")
+        self.assertEqual(1, len(self.tg.threads))
+        quit_event.set()
 
     def test_stop_immediately(self):
 

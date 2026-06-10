@@ -25,7 +25,15 @@ import greenlet
 from oslo_config import cfg
 
 from oslo_service import _options
-from oslo_service import service
+from oslo_service import backend
+
+if __name__ == '__main__':
+    # This helper runs as a standalone script, so the eventlet backend
+    # default set up in oslo_service.tests does not apply. It must be
+    # selected before oslo_service.service resolves its components.
+    backend.init_backend(backend.BackendType.EVENTLET)
+
+from oslo_service import service  # noqa: E402
 
 POOL_SIZE = 1
 
